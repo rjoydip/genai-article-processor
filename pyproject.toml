@@ -1,7 +1,7 @@
 [project]
-name = "python-starter"
+name = "genai-article-processor"
 version = "0.0.0"
-description = "A project template with UV package manager and CI integration."
+description = "Building an Application for Processing Old Article Images with AI."
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -9,14 +9,15 @@ authors = [
     {name = "rjoydip", email = "joydipand@gmail.com"}
 ]
 dependencies = [
-    "fastapi>=0.115.12",
-    "uvicorn>=0.34.2",
+    "beautifulsoup4>=4.13.4",
+    "google-genai>=1.12.1",
+    "lxml>=5.4.0",
+    "python-dotenv",
 ]
 [dependency-groups]
 dev = [
     "pytest>=8.3.5",
     "pytest-cov>=6.1.1",
-    "httpx>=0.28.1",
     "pre-commit>=4.2.0",
 ]
 lint = [
@@ -25,8 +26,15 @@ lint = [
 ]
 
 [build-system]
-requires = ["setuptools", "wheel", "pip"]
+requires = ["setuptools", "pip"]
 build-backend = "setuptools.build_meta"
+
+# Setup tools
+[tool.setuptools.packages.find]
+where = ["."]
+include = []
+exclude = []
+namespaces = false
 
 # Pytest
 [tool.pytest.ini_options]

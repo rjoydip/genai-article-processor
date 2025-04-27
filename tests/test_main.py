@@ -1,11 +1,5 @@
-from fastapi.testclient import TestClient
+def test_sum():
+    assert True, "Should true"
 
-from main import app
-
-client = TestClient(app)
-
-
-def test_main() -> None:
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.text == "Hello from UV!"
+if __name__ == "__main__":
+    test_sum()

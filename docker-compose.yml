@@ -2,7 +2,7 @@ version: "3.8"
 services:
   python_starter:
     build: .
-    container_name: "python-starter"
+    container_name: "genai-article-processor"
     volumes:
       - ./:/app
     # environment:
