@@ -1,9 +1,8 @@
-import os
 import json
 from google.genai import Client
 import xml.etree.ElementTree as ET
 from modules.data_saver import DataSaver
-from config import GEMINI_API_KEY, GEMINI_MODEL, PROCESSED_FILE_NAME
+from config import GEMINI_API_KEY, GEMINI_MODEL
 
 
 class ArticleProcessingAgent:

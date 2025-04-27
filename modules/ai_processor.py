@@ -1,4 +1,4 @@
-from google.genai import types, Client
+from google.genai import Client
 from config import GEMINI_API_KEY, GEMINI_MODEL, RESPONSE_STRUCTURE
 
 
