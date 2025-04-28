@@ -1,56 +1,62 @@
+from typing import Dict, List, Optional, Any, Union
+
 from google.genai import Client
-from config import GEMINI_API_KEY, GEMINI_MODEL, RESPONSE_STRUCTURE
+from config import GEMINI_API_KEY, GEMINI_MODEL
+from modules.prompt_manager import PromptManager
 
 
 class AIProcessor:
     def __init__(self):
         self.client = Client(api_key=GEMINI_API_KEY)
+        self.prompt = PromptManager()
+        self.conversation_history: List[Dict[str, str]] = []
 
-    def compare_and_process(self, extracted_text, xml_metadata, xml_content_sections):
+    def _add_to_history(self, role: str, content: str) -> None:
+        """Add a message to the conversation history."""
+        self.conversation_history.append({"role": role, "content": content})
+
+    def ask_gemini(self, prompt: str, image_path: Optional[str] = None) -> Optional[str]:
+        """Ask Gemini a question with optional image input."""
+        try:
+            if image_path:
+                with open(image_path, "rb") as image_file:
+                    file = self.client.files.upload(
+                        file=image_file, config={"mime_type": "image/png"}
+                    )
+
+                # Generate response with Image
+                response = self.client.models.generate_content(
+                    model=GEMINI_MODEL,
+                    contents=[file, prompt],
+                )
+            else:
+                # Generate response without Image
+                response = self.client.models.generate_content(
+                    model=GEMINI_MODEL,
+                    contents=prompt,
+                )
+
+            # Add to conversation history
+            self._add_to_history("user", prompt)
+            if response.text:
+                self._add_to_history("model", response.text)
+
+            return response.text
+        except Exception as e:
+            print(f"Error communicating with Gemini: {e}")
+            return None
+
+    def compare(self, extracted_text: str, xml_metadata: Dict[str, Any], xml_content_sections: Union[List[str], Dict[str, Any]]) -> Optional[str]:
         """Compare extracted text with XML metadata and generate structured response."""
         try:
-            # Construct the prompt for Gemini
-            prompt = f"""
-            I have an old article from which I've extracted text and XML metadata.
-            
-            EXTRACTED TEXT FROM IMAGE:
-            ```
-            {extracted_text}
-            ```
-
-            XML METADATA:
-            ```
-            {xml_metadata}
-            ```
-
-            XML CONTENT SECTIONS:
-            ```
-            {xml_content_sections}
-            ```
-
-            Please analyze both sources and:
-            1. Verify if the XML metadata matches information found in the extracted text
-            2. Identify any discrepancies between the two sources
-            3. Create a comprehensive structured response with the following JSON structure:
-            {RESPONSE_STRUCTURE}
-
-            For the content field, divide the article into logical paragraphs.
-            For any fields where XML and extracted text disagree, note this in the metadata section.
-
-            IMPORTANT: Return ONLY the raw JSON object without any markdown formatting, code blocks, or explanations. The response must begin with the opening curly brace '{' and end with the closing curly brace '}' with no additional characters.
-            """
-
             # Generate content using the updated API
-            response = self.client.models.generate_content(
-                model=GEMINI_MODEL,
-                contents=prompt,
+            response = self.ask_gemini(
+                self.prompt.get_compare_prompt(
+                    extracted_text, xml_metadata, xml_content_sections
+                )
             )
 
-            if response.text:
-                return response.text.replace("```json", "").replace("```", "")
-            else:
-                print("Empty response text")
-                return None
+            return response
         except Exception as e:
             print(f"Error in AI processing: {e}")
             return None
