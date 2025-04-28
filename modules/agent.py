@@ -43,10 +43,10 @@ class ArticleProcessorAgent:
         executor = ThreadPoolExecutor(max_workers=3)
         loop = asyncio.get_event_loop()
 
-        print("Starting article processing...")
+        print("Starting article processing in parallel...")
 
         # Step 1 & 2: Extract text from image and Parse XML metadata in parallel
-        print("Steps 1 & 2: Extracting text and parsing XML in parallel...")
+        print("Steps 1 & 2: Extracting text and parsing XML...")
 
         raw_image_task = self.ai_processor.ask_ai(
             self.prompt.get_content_extraction_prompt(), image_path

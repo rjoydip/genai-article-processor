@@ -1,5 +1,6 @@
 import os
 import argparse
+import time
 
 import asyncio
 from modules.agent import ArticleProcessorAgent
@@ -14,6 +15,7 @@ class ArticleProcessor:
 
 
 async def main():
+    start_time = time.perf_counter()  # ⏱ Start timing
     parser = argparse.ArgumentParser(
         prog="Article Processor",
     )
@@ -74,7 +76,12 @@ async def main():
             PROCESSED_FOLDER,
         )
 
-    print("Processing complete. Output saved to the artifacts folder.")
+    end_time = time.perf_counter()  # ⏱ End timing
+    elapsed_time = end_time - start_time
+
+    print(
+        f"✅ Processing complete in {elapsed_time:.2f} seconds.\nOutput saved to the artifacts folder."
+    )
 
 
 if __name__ == "__main__":
