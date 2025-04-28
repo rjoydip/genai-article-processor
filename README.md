@@ -21,6 +21,57 @@ Building an Application for Processing Old Article Images with AI.
 - Docker Desktop
 - UV package manager
 
+## Codeflow
+
+```mermaid
+graph TD
+    A[main.py] --> B[ArticleProcessor]
+    B --> C[ArticleProcessorAgent]
+    
+    C --> D[Step 1: Extract text from image]
+    D --> E[AIProcessor.ask_gemini]
+    
+    C --> F[Step 2: Parse XML metadata]
+    F --> G[XMLParser.parse_xml_metadata]
+    
+    C --> H[Step 3: Compare sources]
+    H --> I[AIProcessor.ask_gemini]
+    I --> J[UtilityManager.structure_json]
+    
+    C --> K[Step 4: Structure content]
+    K --> L[AIProcessor.ask_gemini]
+    L --> M[UtilityManager.structure_json]
+    
+    C --> N[Step 5: Generate HTML]
+    N --> O[HTMLProcessor.generate_html]
+    O --> P[AIProcessor.ask_gemini]
+    
+    C --> Q[Step 6: Save results]
+    Q --> R[DataSaver.save_processing_data]
+    
+    subgraph Components
+        E
+        G
+        J
+        M
+        P
+        R
+    end
+    
+    subgraph Process Flow
+        D --> F --> H --> K --> N --> Q
+    end
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style E fill:#bfb,stroke:#333,stroke-width:2px
+    style G fill:#bfb,stroke:#333,stroke-width:2px
+    style J fill:#bfb,stroke:#333,stroke-width:2px
+    style M fill:#bfb,stroke:#333,stroke-width:2px
+    style P fill:#bfb,stroke:#333,stroke-width:2px
+    style R fill:#bfb,stroke:#333,stroke-width:2px
+```
+
 ## 🛠 Installation
 
 1. Clone the repository:
