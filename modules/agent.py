@@ -28,7 +28,6 @@ class ArticleProcessorAgent:
             "raw_image_text": None,
             "xml_metadata": None,
             "combined_content": None,
-            "structured_content": None,
             "html_content": None,
         }
 
@@ -36,7 +35,8 @@ class ArticleProcessorAgent:
         self,
         image_path: str,
         xml_path: str,
-        response_template: Dict[str, Any],
+        image_name: str,
+        response_template: str,
         output_path: str,
     ) -> Dict[str, Any]:
         # Setup a thread pool for CPU-bound tasks
@@ -68,6 +68,7 @@ class ArticleProcessorAgent:
             self.prompt.get_combined_prompt(
                 self.extracted_data.get("raw_image_text", ""),
                 self.extracted_data.get("xml_metadata", ""),
+                response_template,
             )
         )
 
@@ -76,24 +77,8 @@ class ArticleProcessorAgent:
             "combined_content"
         ] = await self.utility_manager.structure_json_async(combined_content)
 
-        # Step 4: Structure content
-        print("Step 4: Structuring content...")
-        structured_content = await self.ai_processor.ask_ai(
-            self.prompt.get_structure_content_prompt(
-                response_template,
-                self.extracted_data.get("raw_image_text", ""),
-                self.extracted_data.get("xml_metadata", ""),
-                self.extracted_data.get("combined_content", "Not available"),
-            )
-        )
-
-        # Structure JSON in thread pool
-        self.extracted_data[
-            "structured_content"
-        ] = await self.utility_manager.structure_json_async(structured_content)
-
-        # Step 5: Generate HTML
-        print("Step 5: Generating HTML...")
+        # Step 4: Generate HTML
+        print("Step 4: Generating HTML...")
         html_content = await self.ai_processor.ask_ai(
             self.prompt.get_html_prompt(
                 self.extracted_data.get("structured_content", "")
@@ -104,8 +89,10 @@ class ArticleProcessorAgent:
             executor, partial(self.html_processor.generate_html, html_content)
         )
 
-        # Step 6: Saving results
-        await self.data_saver.save_processed_data(output_path, self.extracted_data)
+        # Step 5: Saving results
+        await self.data_saver.save_processed_data(
+            output_path, self.extracted_data, image_name
+        )
 
         # Return results
         return self.extracted_data

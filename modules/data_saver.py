@@ -2,8 +2,7 @@ import asyncio
 from functools import partial
 import json
 import os
-
-from config import PROCESSED_FILE_NAME
+from typing import Any, Dict
 
 
 class DataSaver:
@@ -27,7 +26,9 @@ class DataSaver:
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(text)
 
-    async def save_processed_data(self, output_dir, extracted_data):
+    async def save_processed_data(
+        self, output_dir: str, extracted_data: Dict[str, Any], filename: str
+    ):
         """Save all processing results to files."""
         # Create directory
         loop = asyncio.get_event_loop()
@@ -39,30 +40,17 @@ class DataSaver:
 
         # Save RAW text
         if extracted_data["raw_image_text"]:
-            structured_content_path = os.path.join(
-                output_dir, f"{PROCESSED_FILE_NAME}_raw.txt"
-            )
+            structured_content_path = os.path.join(output_dir, f"{filename}_raw.txt")
             save_tasks.append(
                 self._save_text(
                     structured_content_path, extracted_data["raw_image_text"]
                 )
             )
 
-        # Save structured result as JSON
-        if extracted_data["structured_content"]:
-            structured_content_path = os.path.join(
-                output_dir, f"{PROCESSED_FILE_NAME}_structured_content.json"
-            )
-            save_tasks.append(
-                self._save_json(
-                    structured_content_path, extracted_data["structured_content"]
-                )
-            )
-
         # Save XML content
         if extracted_data["xml_metadata"]:
             xml_metadata_path = os.path.join(
-                output_dir, f"{PROCESSED_FILE_NAME}_xml_metadata.json"
+                output_dir, f"{filename}_xml_metadata.json"
             )
             save_tasks.append(
                 self._save_json(xml_metadata_path, extracted_data["xml_metadata"])
@@ -70,7 +58,7 @@ class DataSaver:
 
         # Save HTML content
         if extracted_data["html_content"]:
-            html_path = os.path.join(output_dir, f"{PROCESSED_FILE_NAME}.html")
+            html_path = os.path.join(output_dir, f"{filename}.html")
             save_tasks.append(
                 self._save_text(html_path, extracted_data["html_content"])
             )
@@ -78,7 +66,7 @@ class DataSaver:
         # Save combined content
         if extracted_data["combined_content"]:
             combined_content__path = os.path.join(
-                output_dir, f"{PROCESSED_FILE_NAME}_combined_content.json"
+                output_dir, f"{filename}_combined_content.json"
             )
             save_tasks.append(
                 self._save_json(
@@ -87,7 +75,7 @@ class DataSaver:
             )
 
         # Save full processing data
-        full_data_path = os.path.join(output_dir, f"{PROCESSED_FILE_NAME}_full.json")
+        full_data_path = os.path.join(output_dir, f"{filename}_full.json")
         # Filter out any non-serializable data
         serializable_data = {}
         for key, value in extracted_data.items():

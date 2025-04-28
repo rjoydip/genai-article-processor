@@ -27,7 +27,7 @@ graph TD
     A[main.py] --> B[ArticleProcessor]
     B --> C[ArticleProcessorAgent]
 
-    C --> D[Step 1: Extract text from image]
+    C --> D[Step 1: Extract text]
     D --> E[AIProcessor.ask_ai]
 
     C --> F[Step 2: Parse XML metadata]
@@ -37,15 +37,11 @@ graph TD
     H --> I[AIProcessor.ask_ai]
     I --> J[UtilityManager.structure_json]
 
-    C --> K[Step 4: Structure content]
-    K --> L[AIProcessor.ask_ai]
-    L --> M[UtilityManager.structure_json]
+    C --> K[Step 4: Generate HTML]
+    K --> L[HTMLProcessor.generate_html]
+    L --> M[AIProcessor.ask_ai]
 
-    C --> N[Step 5: Generate HTML]
-    N --> O[HTMLProcessor.generate_html]
-    O --> P[AIProcessor.ask_ai]
-
-    C --> Q[Step 6: Save results]
+    C --> Q[Step 5: Save results]
     Q --> R[DataSaver.save_processed_data]
 
     subgraph Components
@@ -53,12 +49,11 @@ graph TD
         G
         J
         M
-        P
         R
     end
 
     subgraph Process Flow
-        D --> F --> H --> K --> N --> Q
+        D --> F --> H --> K --> Q
     end
 
     style A fill:#f9f,stroke:#333,stroke-width:2px
@@ -67,7 +62,6 @@ graph TD
     style G fill:#bfb,stroke:#333,stroke-width:2px
     style J fill:#bfb,stroke:#333,stroke-width:2px
     style M fill:#bfb,stroke:#333,stroke-width:2px
-    style P fill:#bfb,stroke:#333,stroke-width:2px
     style R fill:#bfb,stroke:#333,stroke-width:2px
 ```
 
@@ -103,14 +97,14 @@ uv run main.py --name <INPUT_FILENAME>
 
 ```bash
 uv run ruff format .
-# or
-uv run ruff check --fix --show-diff-on-failure
+# or to check
+uv run ruff check --fix
 ```
 
 - Run pre-commit files
 
 ```bash
-uvx pre-commit run --all-files
+uvx pre-commit run --all-files  --show-diff-on-failure
 ```
 
 - Run typechecking:

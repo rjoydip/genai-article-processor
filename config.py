@@ -1,3 +1,4 @@
+import json
 import os
 from dotenv import load_dotenv
 
@@ -14,11 +15,12 @@ ARTIFACTS_FOLDER = os.path.join(os.getcwd(), "artifacts")
 INPUT_FOLDER = os.path.join(ARTIFACTS_FOLDER, "inputs")
 PROCESSED_FOLDER = os.path.join(ARTIFACTS_FOLDER, "processed_data")
 
-PROCESSED_FILE_NAME = os.getenv("PROCESSED_FILE_NAME", "article_data")
-
 # Response structure template
-RESPONSE_STRUCTURE = {
-    "title": "",
-    "author": "",
-    "content": [],
-}
+RESPONSE_STRUCTURE = json.dumps(
+    {
+        "title": "",
+        "author": "",
+        "content": [],
+    },
+    indent=2,
+)

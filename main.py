@@ -48,6 +48,7 @@ async def main():
                     task = processor.agent.process_article(
                         image_path,
                         xml_path,
+                        args.name,
                         RESPONSE_STRUCTURE,
                         PROCESSED_FOLDER,
                     )
@@ -68,6 +69,7 @@ async def main():
         await processor.agent.process_article(
             os.path.join(INPUT_FOLDER, f"{args.name}.png"),
             os.path.join(INPUT_FOLDER, f"{args.name}.xml"),
+            args.name,
             RESPONSE_STRUCTURE,
             PROCESSED_FOLDER,
         )
