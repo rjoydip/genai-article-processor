@@ -7,7 +7,7 @@ from config import RESPONSE_STRUCTURE
 class PromptManager:
     def get_content_extraction_prompt(self) -> str:
         return """
-            Extract all the text from this old article image. 
+            Extract all the text from this old article image.
             Return only the extracted text without any additional commentary.
             Preserve paragraph breaks and structural elements as much as possible.
         """
@@ -42,7 +42,7 @@ class PromptManager:
 
             OUTPUT REQUIREMENTS:
             - Return ONLY a raw JSON object with no explanations or markdown formatting
-            - The response must begin with '{' and end with '}'
+            - The response must begin with '{" and end with "}'
             - Ensure the JSON is valid and properly formatted
             - Include ALL fields specified in the response structure
             - For any missing values that cannot be determined, use null or a reasonable inference
@@ -92,7 +92,7 @@ class PromptManager:
             OUTPUT REQUIREMENTS:
             - Return ONLY a valid JSON object that precisely follows the template structure
             - Do not include any explanations, code blocks, or additional text
-            - Ensure the response begins with '{' and ends with '}'
+            - Ensure the response begins with '{" and ends with "}'
             - Format all text properties with proper capitalization, punctuation, and spacing
             - Preserve the historical context and terminology of the original text
             - Include only plain text content without any HTML elements, styling, or images

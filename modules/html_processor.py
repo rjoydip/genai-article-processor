@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional
 from modules.ai_processor import AIProcessor
 from modules.prompt_manager import PromptManager
 

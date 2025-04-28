@@ -1,6 +1,8 @@
 # modules/xml_parser.py
+import asyncio
 import xml.etree.ElementTree as ET
 from typing import Dict, Any
+
 
 class XMLParser:
     def _parse_element(self, element: ET.Element) -> Dict[str, Any]:
@@ -34,8 +36,8 @@ class XMLParser:
             result[element.tag] = element.text.strip() if element.text else ""
 
         return result
-    
-    def parse_xml_metadata(self, xml_path: str) -> Dict[str, Any]:
+
+    def _parse_xml_metadata(self, xml_path: str) -> Dict[str, Any]:
         """Parse the XML metadata file and extract structured information with any level of nesting."""
         try:
             tree = ET.parse(xml_path)
@@ -56,3 +58,8 @@ class XMLParser:
         except Exception as e:
             print(f"Error parsing XML: {e}")
             return {}
+
+    async def parse_xml_metadata(self, xml_path: str) -> Dict[str, Any]:
+        """Parse the XML metadata file asynchronously."""
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self._parse_xml_metadata, xml_path)

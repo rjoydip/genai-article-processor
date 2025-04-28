@@ -26,28 +26,28 @@ Building an Application for Processing Old Article Images with AI.
 graph TD
     A[main.py] --> B[ArticleProcessor]
     B --> C[ArticleProcessorAgent]
-    
+
     C --> D[Step 1: Extract text from image]
     D --> E[AIProcessor.ask_ai]
-    
+
     C --> F[Step 2: Parse XML metadata]
     F --> G[XMLParser.parse_xml_metadata]
-    
+
     C --> H[Step 3: Combined sources]
     H --> I[AIProcessor.ask_ai]
     I --> J[UtilityManager.structure_json]
-    
+
     C --> K[Step 4: Structure content]
     K --> L[AIProcessor.ask_ai]
     L --> M[UtilityManager.structure_json]
-    
+
     C --> N[Step 5: Generate HTML]
     N --> O[HTMLProcessor.generate_html]
     O --> P[AIProcessor.ask_ai]
-    
+
     C --> Q[Step 6: Save results]
     Q --> R[DataSaver.save_processed_data]
-    
+
     subgraph Components
         E
         G
@@ -56,11 +56,11 @@ graph TD
         P
         R
     end
-    
+
     subgraph Process Flow
         D --> F --> H --> K --> N --> Q
     end
-    
+
     style A fill:#f9f,stroke:#333,stroke-width:2px
     style C fill:#bbf,stroke:#333,stroke-width:2px
     style E fill:#bfb,stroke:#333,stroke-width:2px
@@ -73,14 +73,18 @@ graph TD
 
 ## 🛠 Installation
 
-1. Clone the repository:
-
------
+- Clone the repository:
 
 Install project dependencies:
 
 ```bash
 uv sync
+```
+
+- Pre commit hook install
+
+```bash
+uvx pre-commit install
 ```
 
 ## Development
@@ -100,7 +104,13 @@ uv run main.py --name <INPUT_FILENAME>
 ```bash
 uv run ruff format .
 # or
-uv run ruff check --fix
+uv run ruff check --fix --show-diff-on-failure
+```
+
+- Run pre-commit files
+
+```bash
+uvx pre-commit run --all-files
 ```
 
 - Run typechecking:
@@ -141,14 +151,51 @@ uv run pytest
 ## 🔍 Project Structure
 
 ```txt
-uv-ci-template/
-|── main.py # UV application
-├── tests/
-│ └── tests.py # Test suite
-├── Dockerfile # Docker configuration
-├── pyproject.toml # Project configuration
-├── uv.lock # Libs and dependencies
-└── README.md
+genai-article-processor/
+├─ .devcontainer/
+│  └─ devcontainer.json
+├─ .github/
+│  ├─ actions/
+│  │  └─ setup/
+│  │     └─ action.yml
+│  ├─ workflows/
+│  │  └─ ci.yml
+│  └─ dependabot.yml
+├─ .vscode/
+│  └─ extensions.json
+├─ artifacts/
+│  ├─ inputs/
+│  │  ├─ article.png
+│  │  ├─ article.xml
+│  │  ├─ Muenchen-award-profile-1.png
+│  │  ├─ Muenchen-award-profile-1.xml
+│  │  ├─ Muenchen-death-notice-1.png
+│  │  └─ Muenchen-newspaper-court-case-listings.png
+│  └─ processed_data/
+├─ modules/
+│  ├─ agent.py
+│  ├─ ai_processor.py
+│  ├─ data_saver.py
+│  ├─ html_processor.py
+│  ├─ prompt_manager.py
+│  └─ xml_parser.py
+├─ tests/
+│  └─ test_main.py
+├─ .env
+├─ .env.example
+├─ .gitignore
+├─ .pre-commit-config.yaml
+├─ .python-version
+├─ .tool-versions
+├─ config.py
+├─ docker-compose.yml
+├─ Dockerfile
+├─ LICENSE
+├─ main.py
+├─ pyproject.toml
+├─ README.md
+├─ utils.py
+└─ uv.lock
 ```
 
 ## 👥 Contributing

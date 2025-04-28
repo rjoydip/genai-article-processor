@@ -1,5 +1,9 @@
 {
     "recommendations": [
-        "ms-python.python"
+        "fuzionix.file-tree-extractor",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "redhat.vscode-xml",
+        "tamasfe.even-better-toml",
     ]
 }
