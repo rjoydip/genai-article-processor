@@ -21,13 +21,24 @@ class ArticleProcessorAgent:
         self.html_processor = HTMLProcessor()
         self.utility_manager = UtilityManager()
         self.xml_parser = XMLParser()
-        self.extracted_data: Dict[str, Any] = {}
+        self.extracted_data: Dict[str, Any] = {
+            "raw_image_text": None,
+            "xml_metadata": None,
+            "combined_content": None,
+            "structured_content": None,
+            "html_content": None,
+        }
 
-    def process_article(self, image_path: str, xml_path: str, response_template: Dict[str, Any], output_path: str) -> Dict[str, Any]:
-        """Complete end-to-end processing of an article."""
+    def process_article(
+        self,
+        image_path: str,
+        xml_path: str,
+        response_template: Dict[str, Any],
+        output_path: str,
+    ) -> Dict[str, Any]:
         # Step 1: Extract text from image
         print("Step 1: Extracting text from image...")
-        self.extracted_data["raw_image_text"] = self.ai_processor.ask_gemini(
+        self.extracted_data["raw_image_text"] = self.ai_processor.ask_ai(
             self.prompt.get_content_extraction_prompt(), image_path
         )
 
@@ -37,47 +48,47 @@ class ArticleProcessorAgent:
             xml_path
         )
 
-        # Step 3: Compare sources
-        print("Step 3: Comparing content...")
-        comparison_analysis = self.ai_processor.ask_gemini(
-            self.prompt.get_compare_prompt(
+        # Step 3: Combined content
+        print("Step 3: Combined content...")
+        combined_content = self.ai_processor.ask_ai(
+            self.prompt.get_combined_prompt(
                 self.extracted_data.get("raw_image_text", ""),
-                self.extracted_data.get("xml_metadata", ""),
                 self.extracted_data.get("xml_metadata", ""),
             )
         )
 
-        self.extracted_data["comparison_analysis"] = (
-            self.utility_manager.structure_json(comparison_analysis)
+        self.extracted_data["combined_content"] = (
+            self.utility_manager.structure_json(combined_content)
         )
 
         # Step 4: Structure content
         print("Step 4: Structuring content...")
-        structured_result = self.ai_processor.ask_gemini(
+        structured_content = self.ai_processor.ask_ai(
             self.prompt.get_structure_content_prompt(
                 response_template,
                 self.extracted_data.get("raw_image_text", ""),
                 self.extracted_data.get("xml_metadata", ""),
-                self.extracted_data.get("comparison_analysis", "Not available"),
+                self.extracted_data.get("combined_content", "Not available"),
             )
         )
 
-        self.extracted_data["structured_result"] = self.utility_manager.structure_json(
-            structured_result
+        self.extracted_data["structured_content"] = self.utility_manager.structure_json(
+            structured_content
         )
 
         # Step 5: Generate HTML
         print("Step 5: Generating HTML...")
+        html_content = self.ai_processor.ask_ai(
+            self.prompt.get_html_prompt(
+                self.extracted_data.get("structured_content", "")
+            )
+        )
         self.extracted_data["html_content"] = self.html_processor.generate_html(
-            self.extracted_data.get("structured_result", "")
+            html_content
         )
 
         # Step 6: Saving results
-        self.data_saver.save_processing_data(output_path, self.extracted_data)
+        self.data_saver.save_processed_data(output_path, self.extracted_data)
 
         # Return results
-        return {
-            "all_data": self.extracted_data,
-            "html_content": self.extracted_data["html_content"],
-            "structured_content": self.extracted_data["structured_result"],
-        }
+        return self.extracted_data

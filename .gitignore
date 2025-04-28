@@ -7,5 +7,6 @@ wheels/
 .env
 .venv
 ._*
-**/processing_data/*.html
-**/processing_data/*.json
+**/processed_data/**/*.html
+**/processed_data/**/*.txt
+**/processed_data/**/*.json

@@ -15,7 +15,7 @@ class AIProcessor:
         """Add a message to the conversation history."""
         self.conversation_history.append({"role": role, "content": content})
 
-    def ask_gemini(self, prompt: str, image_path: Optional[str] = None) -> Optional[str]:
+    def ask_ai(self, prompt: str, image_path: Optional[str] = None) -> Optional[str]:
         """Ask Gemini a question with optional image input."""
         try:
             if image_path:
@@ -46,17 +46,5 @@ class AIProcessor:
             print(f"Error communicating with Gemini: {e}")
             return None
 
-    def compare(self, extracted_text: str, xml_metadata: Dict[str, Any], xml_content_sections: Union[List[str], Dict[str, Any]]) -> Optional[str]:
-        """Compare extracted text with XML metadata and generate structured response."""
-        try:
-            # Generate content using the updated API
-            response = self.ask_gemini(
-                self.prompt.get_compare_prompt(
-                    extracted_text, xml_metadata, xml_content_sections
-                )
-            )
-
-            return response
-        except Exception as e:
-            print(f"Error in AI processing: {e}")
-            return None
+    def get_history(self):
+        return self.conversation_history

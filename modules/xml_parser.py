@@ -1,6 +1,6 @@
 # modules/xml_parser.py
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 class XMLParser:
     def _parse_element(self, element: ET.Element) -> Dict[str, Any]:
@@ -56,21 +56,3 @@ class XMLParser:
         except Exception as e:
             print(f"Error parsing XML: {e}")
             return {}
-    
-    def extract_content_sections(self, xml_file: str) -> List[str]:
-        """Extract content sections that might need verification."""
-        try:
-            tree = ET.parse(xml_file)
-            root = tree.getroot()
-            
-            content_sections = []
-            
-            # Look for content sections (adjust based on your XML structure)
-            for section in root.findall(".//content") + root.findall(".//paragraph"):
-                if section.text:
-                    content_sections.append(section.text.strip())
-                    
-            return content_sections
-        except Exception as e:
-            print(f"Error extracting content sections: {e}")
-            return []

@@ -4,16 +4,31 @@ import os
 from config import PROCESSED_FILE_NAME
 
 class DataSaver:
-    def save_processing_data(self, output_dir, extracted_data):
+    def save_processed_data(self, output_dir, extracted_data):
         """Save all processing results to files."""
         os.makedirs(output_dir, exist_ok=True)
 
-        # Save structured result as JSON
-        if extracted_data["structured_result"]:
+        # Save RAW text
+        if extracted_data["raw_image_text"]:
             with open(
-                os.path.join(output_dir, f"{PROCESSED_FILE_NAME}_result.json"), "w", encoding="utf-8"
+                os.path.join(output_dir, f"{PROCESSED_FILE_NAME}_raw.txt"), "w", encoding="utf-8"
             ) as f:
-                json.dump(extracted_data["structured_result"], f, indent=2)
+                f.write(extracted_data["raw_image_text"])
+
+        # Save structured result as JSON
+        if extracted_data["structured_content"]:
+            with open(
+                os.path.join(output_dir, f"{PROCESSED_FILE_NAME}_structured_content.json"), "w", encoding="utf-8"
+            ) as f:
+                json.dump(extracted_data["structured_content"], f, indent=2)
+
+        # Save XML content
+        if extracted_data["xml_metadata"]:
+            with open(
+                os.path.join(output_dir, f"{PROCESSED_FILE_NAME}_xml_metadata.json"), "w", encoding="utf-8"
+            ) as f:
+                json.dump(extracted_data["xml_metadata"], f, indent=2)
+
 
         # Save HTML content
         if extracted_data["html_content"]:
@@ -22,9 +37,16 @@ class DataSaver:
             ) as f:
                 f.write(extracted_data["html_content"])
 
+        # Save combined content
+        if extracted_data["combined_content"]:
+            with open(
+                os.path.join(output_dir, f"{PROCESSED_FILE_NAME}_combined_content.json"), "w", encoding="utf-8"
+            ) as f:
+                json.dump(extracted_data["combined_content"], f, indent=2)
+
         # Save full processing data
         with open(
-            os.path.join(output_dir, f"{PROCESSED_FILE_NAME}.json"), "w", encoding="utf-8"
+            os.path.join(output_dir, f"{PROCESSED_FILE_NAME}_full.json"), "w", encoding="utf-8"
         ) as f:
             # Filter out any non-serializable data
             serializable_data = {}
