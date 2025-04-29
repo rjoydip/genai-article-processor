@@ -13,4 +13,3 @@ runs:
       shell: bash
       run: |
         uv sync --locked --active --all-extras --all-packages --all-groups
-

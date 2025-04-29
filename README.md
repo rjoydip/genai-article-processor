@@ -9,11 +9,10 @@ Building an Application for Processing Old Article Images with AI.
 
 ## 🚀 Features
 
-- UV package manager for dependency management
 - Docker support
+- UV package manager
 - Ruff for code formatting and linting
 - Pytest for testing
-- Logging configuration
 
 ## 📋 Prerequisites
 
@@ -27,61 +26,59 @@ Building an Application for Processing Old Article Images with AI.
 graph TD
     A[main.py] --> B[ArticleProcessor]
     B --> C[ArticleProcessorAgent]
-    
-    C --> D[Step 1: Extract text from image]
-    D --> E[AIProcessor.ask_gemini]
-    
+
+    C --> D[Step 1: Extract text]
+    D --> E[AIProcessor.ask_ai]
+
     C --> F[Step 2: Parse XML metadata]
     F --> G[XMLParser.parse_xml_metadata]
-    
-    C --> H[Step 3: Compare sources]
-    H --> I[AIProcessor.ask_gemini]
+
+    C --> H[Step 3: Combined sources]
+    H --> I[AIProcessor.ask_ai]
     I --> J[UtilityManager.structure_json]
-    
-    C --> K[Step 4: Structure content]
-    K --> L[AIProcessor.ask_gemini]
-    L --> M[UtilityManager.structure_json]
-    
-    C --> N[Step 5: Generate HTML]
-    N --> O[HTMLProcessor.generate_html]
-    O --> P[AIProcessor.ask_gemini]
-    
-    C --> Q[Step 6: Save results]
-    Q --> R[DataSaver.save_processing_data]
-    
+
+    C --> K[Step 4: Generate HTML]
+    K --> L[HTMLProcessor.generate_html]
+    L --> M[AIProcessor.ask_ai]
+
+    C --> Q[Step 5: Save results]
+    Q --> R[DataSaver.save_processed_data]
+
     subgraph Components
         E
         G
         J
         M
-        P
         R
     end
-    
+
     subgraph Process Flow
-        D --> F --> H --> K --> N --> Q
+        D --> F --> H --> K --> Q
     end
-    
+
     style A fill:#f9f,stroke:#333,stroke-width:2px
     style C fill:#bbf,stroke:#333,stroke-width:2px
     style E fill:#bfb,stroke:#333,stroke-width:2px
     style G fill:#bfb,stroke:#333,stroke-width:2px
     style J fill:#bfb,stroke:#333,stroke-width:2px
     style M fill:#bfb,stroke:#333,stroke-width:2px
-    style P fill:#bfb,stroke:#333,stroke-width:2px
     style R fill:#bfb,stroke:#333,stroke-width:2px
 ```
 
 ## 🛠 Installation
 
-1. Clone the repository:
-
------
+- Clone the repository:
 
 Install project dependencies:
 
 ```bash
 uv sync
+```
+
+- Pre commit hook install
+
+```bash
+uvx pre-commit install
 ```
 
 ## Development
@@ -91,15 +88,23 @@ uv sync
 - Run UV application locally:
 
 ```bash
-uv run uvstarter main:app --port 8000 --reload
+uv run main.py -n <INPUT_FILENAME>
+# or
+uv run main.py --name <INPUT_FILENAME>
 ```
 
 - Run code formatting and linting:
 
 ```bash
 uv run ruff format .
-# or
+# or to check
 uv run ruff check --fix
+```
+
+- Run pre-commit files
+
+```bash
+uvx pre-commit run --all-files  --show-diff-on-failure
 ```
 
 - Run typechecking:
@@ -128,11 +133,6 @@ docker run -p 8000:8000 app
 - Project dependencies and settings are managed in `pyproject.toml`
 - Ruff is configured for code formatting and linting
 - Pytest is set up for testing
-- Logging configuration is available for different environments
-
-## 🌐 API Endpoints
-
-- `GET /`: Returns a "Hello from UV!" message
 
 ## 🧪 Testing
 
@@ -145,14 +145,51 @@ uv run pytest
 ## 🔍 Project Structure
 
 ```txt
-uv-ci-template/
-|── main.py # UV application
-├── tests/
-│ └── tests.py # Test suite
-├── Dockerfile # Docker configuration
-├── pyproject.toml # Project configuration
-├── uv.lock # Libs and dependencies
-└── README.md
+genai-article-processor/
+├─ .devcontainer/
+│  └─ devcontainer.json
+├─ .github/
+│  ├─ actions/
+│  │  └─ setup/
+│  │     └─ action.yml
+│  ├─ workflows/
+│  │  └─ ci.yml
+│  └─ dependabot.yml
+├─ .vscode/
+│  └─ extensions.json
+├─ artifacts/
+│  ├─ inputs/
+│  │  ├─ article.png
+│  │  ├─ article.xml
+│  │  ├─ Muenchen-award-profile-1.png
+│  │  ├─ Muenchen-award-profile-1.xml
+│  │  ├─ Muenchen-death-notice-1.png
+│  │  └─ Muenchen-newspaper-court-case-listings.png
+│  └─ processed_data/
+├─ modules/
+│  ├─ agent.py
+│  ├─ ai_processor.py
+│  ├─ data_saver.py
+│  ├─ html_processor.py
+│  ├─ prompt_manager.py
+│  └─ xml_parser.py
+├─ tests/
+│  └─ test_main.py
+├─ .env
+├─ .env.example
+├─ .gitignore
+├─ .pre-commit-config.yaml
+├─ .python-version
+├─ .tool-versions
+├─ config.py
+├─ docker-compose.yml
+├─ Dockerfile
+├─ LICENSE
+├─ main.py
+├─ pyproject.toml
+├─ README.md
+├─ utils.py
+└─ uv.lock
 ```
 
 ## 👥 Contributing

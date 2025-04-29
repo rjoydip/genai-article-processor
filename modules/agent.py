@@ -1,3 +1,6 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from typing import Dict, Any
 
 from google.genai import Client
@@ -21,63 +24,75 @@ class ArticleProcessorAgent:
         self.html_processor = HTMLProcessor()
         self.utility_manager = UtilityManager()
         self.xml_parser = XMLParser()
-        self.extracted_data: Dict[str, Any] = {}
+        self.extracted_data: Dict[str, Any] = {
+            "raw_image_text": None,
+            "xml_metadata": None,
+            "combined_content": None,
+            "html_content": None,
+        }
 
-    def process_article(self, image_path: str, xml_path: str, response_template: Dict[str, Any], output_path: str) -> Dict[str, Any]:
-        """Complete end-to-end processing of an article."""
-        # Step 1: Extract text from image
-        print("Step 1: Extracting text from image...")
-        self.extracted_data["raw_image_text"] = self.ai_processor.ask_gemini(
+    async def process_article(
+        self,
+        image_path: str,
+        xml_path: str,
+        image_name: str,
+        response_template: str,
+        output_path: str,
+    ) -> Dict[str, Any]:
+        # Setup a thread pool for CPU-bound tasks
+        executor = ThreadPoolExecutor(max_workers=3)
+        loop = asyncio.get_event_loop()
+
+        print("Starting article processing in parallel...")
+
+        # Step 1 & 2: Extract text from image and Parse XML metadata in parallel
+        print("Steps 1 & 2: Extracting text and parsing XML...")
+
+        raw_image_task = self.ai_processor.ask_ai(
             self.prompt.get_content_extraction_prompt(), image_path
         )
 
-        # Step 2: Parse XML metadata
-        print("Step 2: Parsing XML metadata...")
-        self.extracted_data["xml_metadata"] = self.xml_parser.parse_xml_metadata(
-            xml_path
+        xml_metadata_task = self.xml_parser.parse_xml_metadata(xml_path)
+
+        # Wait for both tasks to complete
+        raw_image_text, xml_metadata = await asyncio.gather(
+            raw_image_task, xml_metadata_task
         )
 
-        # Step 3: Compare sources
-        print("Step 3: Comparing content...")
-        comparison_analysis = self.ai_processor.ask_gemini(
-            self.prompt.get_compare_prompt(
+        self.extracted_data["raw_image_text"] = raw_image_text
+        self.extracted_data["xml_metadata"] = xml_metadata
+
+        # Step 3: Combined content
+        print("Step 3: Combined content...")
+        combined_content = await self.ai_processor.ask_ai(
+            self.prompt.get_combined_prompt(
                 self.extracted_data.get("raw_image_text", ""),
                 self.extracted_data.get("xml_metadata", ""),
-                self.extracted_data.get("xml_metadata", ""),
-            )
-        )
-
-        self.extracted_data["comparison_analysis"] = (
-            self.utility_manager.structure_json(comparison_analysis)
-        )
-
-        # Step 4: Structure content
-        print("Step 4: Structuring content...")
-        structured_result = self.ai_processor.ask_gemini(
-            self.prompt.get_structure_content_prompt(
                 response_template,
-                self.extracted_data.get("raw_image_text", ""),
-                self.extracted_data.get("xml_metadata", ""),
-                self.extracted_data.get("comparison_analysis", "Not available"),
             )
         )
 
-        self.extracted_data["structured_result"] = self.utility_manager.structure_json(
-            structured_result
+        # Run JSON structuring in thread pool to avoid blocking
+        self.extracted_data[
+            "combined_content"
+        ] = await self.utility_manager.structure_json_async(combined_content)
+
+        # Step 4: Generate HTML
+        print("Step 4: Generating HTML...")
+        html_content = await self.ai_processor.ask_ai(
+            self.prompt.get_html_prompt(
+                self.extracted_data.get("structured_content", "")
+            )
         )
 
-        # Step 5: Generate HTML
-        print("Step 5: Generating HTML...")
-        self.extracted_data["html_content"] = self.html_processor.generate_html(
-            self.extracted_data.get("structured_result", "")
+        self.extracted_data["html_content"] = await loop.run_in_executor(
+            executor, partial(self.html_processor.generate_html, html_content)
         )
 
-        # Step 6: Saving results
-        self.data_saver.save_processing_data(output_path, self.extracted_data)
+        # Step 5: Saving results
+        await self.data_saver.save_processed_data(
+            output_path, self.extracted_data, image_name
+        )
 
         # Return results
-        return {
-            "all_data": self.extracted_data,
-            "html_content": self.extracted_data["html_content"],
-            "structured_content": self.extracted_data["structured_result"],
-        }
+        return self.extracted_data
